@@ -145,9 +145,9 @@
       width: 200px;
       height: 100%;
       background: rgba(0, 0, 0, 0.8);
-      transition: right 0.3s ease-in-out;
+      transition: right 0.8s ease-in-out;
       padding-top: 50px;
-      text-align: center;
+      text-align: left;
     }
 
     /* Quand le menu est ouvert */
@@ -188,6 +188,8 @@
   <!-- Menu latéral -->
   <div id="menu" class="menu">
     <a href="#">🏠 Pomodoro</a>
+    <!-- Lien vers le mode avancé -->
+    <a href="advance.html">🚀 Mode Avancé</a>
   </div>
 
   <div class="container">
@@ -320,7 +322,7 @@
       button.addEventListener('click', function() {
         document.querySelectorAll('.preset-button').forEach(btn => btn.classList.remove('active'));
         this.classList.add('active');
-        resetToPreset(parseInt(this.getAttribute('data-time')));
+        resetToPreset(parseInt(this.getAttribute('data-time'))); 
       });
     });
 

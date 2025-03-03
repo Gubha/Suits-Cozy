@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pomodoro Timer - Mode Avancé</title>
+  
+  <!-- Importation de la police Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Style général */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Montserrat', sans-serif;
+      background: url("https://pbs.twimg.com/media/GKPYBVRX0AAUanL?format=jpg&name=large") no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f0f0;
+    }
+
+    /* Conteneur principal */
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 50px;
+    }
+
+    /* Timer */
+    .timer-container {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    /* Boutons de présélection */
+    .preset-buttons {
+      margin-bottom: 20px;
+    }
+
+    .preset-button {
+      background: transparent;
+      border: 2px solid #f0f0f0;
+      color: #f0f0f0;
+      padding: 8px 12px;
+      margin: 0 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s, color 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .preset-button.active,
+    .preset-button:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    /* Affichage du temps */
+    #time {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    /* Affichage de la phase en cours */
+    #phase {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+    }
+
+    /* Boutons de contrôle */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .control-button {
+      background: transparent;
+      border: 2px solid #f0f0f0;
+      color: #f0f0f0;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .control-button:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+    
+    /* Lien de navigation entre mode classique et avancé */
+    .switch-mode {
+      color: #f0f0f0;
+      text-decoration: underline;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    /* Player Spotify */
+    #spotifyContainer {
+      margin-top: 20px;
+      display: none; /* Initialement caché */
+    }
+
+    /* Footer rétractable */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      color: #f0f0f0;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 0;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .footer-hidden {
+      transform: translateY(100%);
+    }
+
+    /* Bouton menu (3 petits points) */
+    .menu-button {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #f0f0f0;
+      background: none;
+      border: none;
+      z-index: 1000;
+    }
+
+    /* Menu latéral */
+    .menu {
+      position: fixed;
+      top: 0;
+      right: -250px;
+      width: 200px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      transition: right 0.8s ease-in-out;
+      padding-top: 50px;
+      text-align: left;
+    }
+
+    .menu.menu-open {
+      right: 0;
+    }
+
+    .menu a {
+      display: block;
+      padding: 15px;
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background 0.3s;
+    }
+
+    .menu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive: ajuster les tailles sur les petits écrans */
+    @media (max-width: 480px) {
+      #time {
+        font-size: 3rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Bouton menu -->
+  <button class="menu-button" onclick="toggleMenu(event)">⋮</button>
+
+  <!-- Menu latéral combiné (Pomodoro et Mode Avancé) -->
+  <div id="menu" class="menu">
+    <a href="index.html">🏠 Pomodoro</a>
+    <a href="#">🚀 Mode Avancé</a>
+  </div>
+
+  <div class="container">
+    <div class="timer-container">
+      <h1>Pomodoro Timer - Mode Avancé</h1>
+
+      <!-- Boutons de présélection pour les programmes -->
+      <div class="preset-buttons">
+        <button class="preset-button active" data-phases='[1500,300,1500]'>25+5+25</button>
+        <button class="preset-button" data-phases='[3600,600,3600]'>1+10+1</button>
+        <button class="preset-button" data-phases='[7200,1800,7200]'>2+30+2</button>
+        <button class="preset-button" data-phases='[10800,3600,10800]'>3+60+3</button>
+      </div>
+
+      <!-- Affichage du temps et de la phase -->
+      <div id="phase">Phase : Travail</div>
+      <div id="time">25:00</div> <!-- Correction initiale du format pour 25+5+25 -->
+
+      <!-- Boutons de contrôle -->
+      <div class="controls">
+        <button id="startButton" class="control-button">Démarrer</button>
+        <button id="pauseButton" class="control-button">Pause</button>
+        <button id="resetButton" class="control-button">Réinitialiser</button>
+      </div>
+      
+      <!-- Lien pour revenir au mode classique -->
+      <div class="switch-mode" onclick="window.location.href='index.html'">
+        Passer en mode classique
+      </div>
+    </div>
+
+    <!-- Player Spotify intégré -->
+    <div id="spotifyContainer">
+      <iframe id="spotifyPlayer" src="https://open.spotify.com/embed/playlist/4TliGt63npSjodq6oH24pc?si=e0544ea82daf4139&autoplay=1" width="300" height="380" frameborder="0" allowtransparency="true" allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer id="footer">
+    <p>© 2025 Pomodoro Suits & Cozy. Tous droits réservés.</p>
+    <a href="https://www.linkedin.com/in/vincent-chunleau-9ba1a9263/" target="_blank" style="color: #f0f0f0; text-decoration: none; font-weight: bold;">
+      LinkedIn - Vincent Chunleau
+    </a>
+  </footer>
+
+  <!-- Audio pour alertes -->
+  <audio id="dingAudio" src="ding.mp3"></audio>
+  <audio id="alarmAudio" src="alarm.mp3"></audio>
+
+  <!-- Scripts -->
+  <script>
+    let timer;
+    let isRunning = false;
+    let currentPhase = 0;
+    let timeLeft = 1500; // Initial time in seconds for the first phase (25 minutes)
+    let phases = [1500, 300, 1500]; // Default phases [work, short break, work]
+    let intervalId;
+
+    // Update the timer display
+    function updateTimerDisplay() {
+      const hours = String(Math.floor(timeLeft / 3600)).padStart(2, '0');
+      const minutes = String(Math.floor((timeLeft % 3600) / 60)).padStart(2, '0');
+      const seconds = String(timeLeft % 60).padStart(2, '0');
+
+      // Si le temps est inférieur à 1 heure, l'affichage passe à mm:ss
+      if (timeLeft < 3600) {
+        document.getElementById("time").textContent = `${minutes}:${seconds}`;
+      } else {
+        document.getElementById("time").textContent = `${hours}:${minutes}:${seconds}`;
+      }
+    }
+
+    // Switch phases and start the next timer phase
+    function nextPhase() {
+      // Lorsque la phase est de travail, passe à la phase de pause
+      if (currentPhase === 0) {
+        currentPhase = 1; // Phase de pause courte
+        timeLeft = phases[currentPhase];
+        document.getElementById("phase").textContent = `Phase : Pause courte`;
+      } else if (currentPhase === 1) {
+        // Après la pause courte, passe à la phase de travail
+        currentPhase = 0;
+        timeLeft = phases[currentPhase];
+        document.getElementById("phase").textContent = `Phase : Travail`;
+      } else {
+        // Après la pause longue, passe à la phase de travail
+        currentPhase = 0;
+        timeLeft = phases[currentPhase];
+        document.getElementById("phase").textContent = `Phase : Travail`;
+      }
+
+      updateTimerDisplay(); // Mettre à jour l'affichage du timer
+    }
+
+    // Start the timer
+    function startTimer() {
+      isRunning = true;
+      intervalId = setInterval(() => {
+        if (timeLeft === 15) {
+          // Déclencher le son de fin 15 secondes avant la fin
+          document.getElementById("dingAudio").play();
+        }
+
+        if (timeLeft === 0) {
+          clearInterval(intervalId);
+          // Jouer le son alarm à la fin de chaque phase
+          document.getElementById("alarmAudio").play();
+          nextPhase(); // Passer à la phase suivante automatiquement
+          startTimer(); // Restart timer for next phase
+        } else {
+          timeLeft--;
+        }
+
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    // Pause the timer
+    function pauseTimer() {
+      isRunning = false;
+      clearInterval(intervalId);
+    }
+
+    // Reset the timer
+    function resetTimer() {
+      clearInterval(intervalId);
+      currentPhase = 0;
+      timeLeft = phases[currentPhase];
+      updateTimerDisplay();
+      document.getElementById("phase").textContent = `Phase : Travail`;
+      isRunning = false;
+    }
+
+    // Switch between preset durations
+    const presetButtons = document.querySelectorAll(".preset-button");
+    presetButtons.forEach(button => {
+      button.addEventListener("click", function () {
+        presetButtons.forEach(btn => btn.classList.remove("active"));
+        button.classList.add("active");
+        phases = JSON.parse(button.getAttribute("data-phases"));
+        resetTimer();
+      });
+    });
+
+    // Assign actions to control buttons
+    document.getElementById("startButton").addEventListener("click", () => {
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    });
+
+    document.getElementById("pauseButton").addEventListener("click", pauseTimer);
+    document.getElementById("resetButton").addEventListener("click", resetTimer);
+
+    // Toggle the menu
+    function toggleMenu(event) {
+      const menu = document.getElementById("menu");
+      menu.classList.toggle("menu-open");
+    }
+  </script>
+</body>
+</html>
