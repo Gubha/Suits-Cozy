@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pomodoro Timer - Suits & Cozy Style</title>
+  
+  <!-- Importation de la police Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Style général */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Montserrat', sans-serif;
+      background: url("https://pbs.twimg.com/media/GKPYBVRX0AAUanL?format=jpg&name=large") no-repeat center center fixed;
+      background-size: cover;
+      color: #f0f0f0;
+    }
+
+    /* Conteneur principal */
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding-bottom: 50px; /* Pour éviter le chevauchement avec le footer */
+    }
+
+    /* Timer */
+    .timer-container {
+      background: rgba(0, 0, 0, 0.7);
+      border-radius: 10px;
+      padding: 30px 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      max-width: 400px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    /* Boutons de présélection */
+    .preset-buttons {
+      margin-bottom: 20px;
+    }
+
+    .preset-button {
+      background: transparent;
+      border: 2px solid #f0f0f0;
+      color: #f0f0f0;
+      padding: 8px 16px;
+      margin: 0 5px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .preset-button.active,
+    .preset-button:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    /* Affichage du temps */
+    #time {
+      font-size: 4rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+
+    /* Boutons de contrôle */
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .control-button {
+      background: transparent;
+      border: 2px solid #f0f0f0;
+      color: #f0f0f0;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .control-button:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    /* Player Spotify */
+    #spotifyContainer {
+      margin-top: 20px;
+      display: none;
+    }
+
+    /* Footer rétractable */
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+      color: #f0f0f0;
+      font-size: 0.9rem;
+      background: rgba(0, 0, 0, 0.7);
+      padding: 10px 0;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    /* Masquer le footer */
+    .footer-hidden {
+      transform: translateY(100%);
+    }
+
+    /* Bouton menu (3 petits points) */
+    .menu-button {
+      position: fixed;
+      top: 15px;
+      right: 20px;
+      font-size: 24px;
+      cursor: pointer;
+      color: #f0f0f0;
+      background: none;
+      border: none;
+      z-index: 1000;
+    }
+
+    /* Menu latéral */
+    .menu {
+      position: fixed;
+      top: 0;
+      right: -250px; /* Caché par défaut */
+      width: 200px;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      transition: right 0.3s ease-in-out;
+      padding-top: 50px;
+      text-align: center;
+    }
+
+    /* Quand le menu est ouvert */
+    .menu.menu-open {
+      right: 0;
+    }
+
+    /* Style des liens du menu */
+    .menu a {
+      display: block;
+      padding: 15px;
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background 0.3s;
+    }
+
+    .menu a:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      #time {
+        font-size: 3rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Bouton menu -->
+  <button class="menu-button" onclick="toggleMenu(event)">⋮</button>
+
+  <!-- Menu latéral -->
+  <div id="menu" class="menu">
+    <a href="#">🏠 Pomodoro</a>
+  </div>
+
+  <div class="container">
+    <div class="timer-container">
+      <h1>Pomodoro Timer</h1>
+
+      <!-- Boutons de présélection -->
+      <div class="preset-buttons">
+        <button class="preset-button active" data-time="1500">25 min</button>
+        <button class="preset-button" data-time="3600">1 h</button>
+        <button class="preset-button" data-time="7200">2 h</button>
+        <button class="preset-button" data-time="10800">3 h</button>
+      </div>
+
+      <!-- Timer -->
+      <div id="time">25:00</div>
+
+      <!-- Boutons de contrôle -->
+      <div class="controls">
+        <button id="startButton" class="control-button">Démarrer</button>
+        <button id="pauseButton" class="control-button">Pause</button>
+        <button id="resetButton" class="control-button">Réinitialiser</button>
+      </div>
+    </div>
+
+    <!-- Player Spotify intégré -->
+    <div id="spotifyContainer">
+      <iframe id="spotifyPlayer" src="https://open.spotify.com/embed/playlist/4TliGt63npSjodq6oH24pc?si=e0544ea82daf4139&autoplay=1" width="300" height="380" frameborder="0" allowtransparency="true" allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+
+  <!-- Footer avec mentions légales -->
+  <footer>
+    <p>© 2025 Pomodoro Suits & Cozy. Tous droits réservés.</p>
+    <a href="https://www.linkedin.com/in/vincent-chunleau-9ba1a9263/" target="_blank" style="color: #f0f0f0; text-decoration: none; font-weight: bold;">
+      LinkedIn - Vincent Chunleau
+    </a>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // Gestion de l'affichage du footer lors du scroll
+    let lastScrollTop = 0;
+    const footer = document.querySelector("footer");
+  
+    window.addEventListener("scroll", () => {
+      let currentScroll = window.scrollY;
+      if (currentScroll > lastScrollTop) {
+        // Scroll vers le bas -> afficher le footer
+        footer.classList.remove("footer-hidden");
+      } else {
+        // Scroll vers le haut -> cacher le footer
+        footer.classList.add("footer-hidden");
+      }
+      lastScrollTop = currentScroll;
+    });
+  
+    // Fonction pour ouvrir/fermer le menu latéral
+    function toggleMenu(event) {
+      event.stopPropagation(); // Empêche la propagation du clic pour ne pas déclencher la fermeture immédiate
+      document.getElementById("menu").classList.toggle("menu-open");
+    }
+  
+    // Ferme le menu si clic en dehors de celui-ci ou du bouton menu
+    document.addEventListener('click', function(event) {
+      const menu = document.getElementById('menu');
+      const menuButton = document.querySelector('.menu-button');
+      if (menu.classList.contains('menu-open') && 
+          !menu.contains(event.target) && 
+          !menuButton.contains(event.target)) {
+        menu.classList.remove('menu-open');
+      }
+    });
+  </script>  
+
+  <script>
+    // Fonctionnalités du timer
+    let totalSeconds;
+    let interval;
+    let isRunning = false;
+
+    function updateDisplay() {
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      document.getElementById('time').textContent = 
+        (hours > 0 ? (hours < 10 ? "0" + hours : hours) + ":" : "") +
+        (minutes < 10 ? "0" + minutes : minutes) + ":" + 
+        (seconds < 10 ? "0" + seconds : seconds);
+    }
+
+    function resetToPreset(timeInSeconds) {
+      clearInterval(interval);
+      isRunning = false;
+      totalSeconds = timeInSeconds;
+      updateDisplay();
+    }
+
+    function startTimer() {
+      if (!isRunning) {
+        isRunning = true;
+        document.getElementById('spotifyContainer').style.display = 'block';
+        interval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateDisplay();
+          } else {
+            clearInterval(interval);
+            isRunning = false;
+            alert("Le temps est écoulé !");
+          }
+        }, 1000);
+      }
+    }
+
+    function pauseTimer() {
+      clearInterval(interval);
+      isRunning = false;
+    }
+
+    function resetTimer() {
+      clearInterval(interval);
+      isRunning = false;
+      const activeButton = document.querySelector('.preset-button.active');
+      totalSeconds = parseInt(activeButton.getAttribute('data-time'));
+      updateDisplay();
+    }
+
+    document.querySelectorAll('.preset-button').forEach(button => {
+      button.addEventListener('click', function() {
+        document.querySelectorAll('.preset-button').forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+        resetToPreset(parseInt(this.getAttribute('data-time')));
+      });
+    });
+
+    document.getElementById('startButton').addEventListener('click', startTimer);
+    document.getElementById('pauseButton').addEventListener('click', pauseTimer);
+    document.getElementById('resetButton').addEventListener('click', resetTimer);
+
+    resetToPreset(1500);
+  </script>
+</body>
+</html>
